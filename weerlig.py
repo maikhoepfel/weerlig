@@ -4,7 +4,8 @@ import time
 
 total_leds = 60
 brightness = 31  # 0..31
-lightning_talk_time = 30 # in seconds
+lightning_talk_time = 300 # in seconds
+rounds_per_minute = 40
 
 
 def init_strip():
@@ -23,7 +24,7 @@ def set_and_show_strip(strip, progress):
     if leds_progress == 0:
         return
 
-    wheel_offset = progress * 256 * 30
+    wheel_offset = progress * 256 * (rounds_per_minute * lightning_talk_time / 60)
 
     for led in range(total_leds):
         current_position = 256 * led / total_leds
