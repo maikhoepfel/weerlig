@@ -38,7 +38,7 @@ class ColorCycleTemplate:
     currentStep: This goes from zero to numStepsPerCycle-1, and then back to zero. It is up to the subclass to define
                  what is done in one cycle. One cycle could be one pass through the rainbow. Or it could
                  be one pixel wandering through the entire strip (so for this case, the numStepsPerCycle should be
-                 equal to numLEDs).
+                 equal to total_leds).
     currentCycle: Starts with zero, and goes up by one whenever a full cycle has completed.
     """
     def update(self, strip, numLEDs, numStepsPerCycle, currentStep, currentCycle):

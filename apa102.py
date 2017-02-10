@@ -87,13 +87,13 @@ class APA102:
     for every two LEDs, one bit of delay gets accumulated. For 300 LEDs, 150 additional bits must be fed to
     the input of LED one so that the data can reach the last LED.
 
-    Ultimately, we need to send additional numLEDs/2 arbitrary data bits, in order to trigger numLEDs/2 additional clock
+    Ultimately, we need to send additional total_leds/2 arbitrary data bits, in order to trigger total_leds/2 additional clock
     changes. This driver sends zeroes, which has the benefit of getting LED one partially or fully ready for the next update
     to the strip. An optimized version of the driver could omit the "clockStartFrame" method if enough zeroes have
     been sent as part of "clockEndFrame".
     """
     def clockEndFrame(self):
-        for _ in range((self.numLEDs + 15) // 16):  # Round up numLEDs/2 bits (or numLEDs/16 bytes)
+        for _ in range((self.numLEDs + 15) // 16):  # Round up total_leds/2 bits (or total_leds/16 bytes)
             self.spi.xfer2([0x00])
 
     """
