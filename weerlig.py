@@ -6,8 +6,6 @@ total_leds = 60
 brightness = 31  # 0..31
 lightning_talk_time = 30 # in seconds
 
-current_step = 0
-
 
 def init_strip():
     # Initialize the class
@@ -21,25 +19,24 @@ def show_idle_strip(strip):
 
 
 def set_and_show_strip(strip, progress):
-    global current_step
     leds_progress = int(round(progress * total_leds))
     if leds_progress == 0:
         return
 
-    scale_factor = 255 / leds_progress
-    start_index = current_step
+    wheel_offset = progress * 256 * 30
 
     for led in range(total_leds):
+        current_position = 256 * led / total_leds
+        actual_position = int(wheel_offset + current_position) % 256
+
+        color = strip.wheel(actual_position)
+
         if led > leds_progress:
             strip.setPixel(led, 1, 1, 1)
         else:
-            led_index = start_index + led * scale_factor
-            led_wrapped = int(round(led_index, 0)) % 255
-            color = strip.wheel(led_wrapped)
             strip.setPixelRGB(led, color)
 
     strip.show()
-    current_step += 1
 
 
 def visualize(strip):
