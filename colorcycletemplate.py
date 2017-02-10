@@ -50,7 +50,7 @@ class ColorCycleTemplate:
         strip.cleanup()
 
     """
-    Start the actual work
+    Start the actual worknumLEDs
     """
     def start(self):
         try:
