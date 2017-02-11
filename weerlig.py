@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 import apa102
 import time
+import RPi.GPIO as GPIO
 
 total_leds = 60
 brightness = 31  # 0..31
 lightning_talk_time = 30 # in seconds
 rounds_per_minute = 40
+
+SWITCH_GPIO = 7  # board numbering, equals GPIO04
 
 
 def init_strip():
@@ -49,10 +52,15 @@ def visualize(strip):
         progress = elapsed_seconds / lightning_talk_time
         set_and_show_strip(strip, progress)
         current_time = time.time()
+        print(GPIO.input(SWITCH_GPIO))
     print('Finished')
 
 if __name__ == '__main__':
     strip = init_strip()
+    # Let pins confirm to board numbering
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(SWITCH_GPIO, GPIO.IN)
+
     show_idle_strip(strip)
     try:
         visualize(strip)
