@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 import apa102
 import time
-import RPi.GPIO as GPIO
 import gpiozero
 
 TOTAL_LEDS = 60
 BRIGHTNESS = 3  # 0..31
 LIGHTNING_TALK_TIME = 30 # in seconds
+TIME_OVER_TIME = 10
 RAINBOW_ROUNDS_PER_MINUTE = 40
 
 SWITCH_GPIO = 4  # BCM numbering, equals board pin 7
@@ -30,7 +30,7 @@ def show_idle_strip(strip):
     strip.show()
 
 
-def set_and_show_strip(strip, progress):
+def rainbow_progress(strip, progress):
     # We always pretend we're doing the rainbow effect across the entire strip,
     # but then we only set it for an increasing number of LEDs. LEDs with an index
     # below active_leds_cutoff get the rainbow, the others keep being dimly lit.
@@ -63,14 +63,34 @@ def set_and_show_strip(strip, progress):
     strip.show()
 
 
-def visualize(strip, button):
+def visualize_time_elapsing(strip, button):
     start_of_talk = current_time = time.time()
     end_of_talk = start_of_talk + LIGHTNING_TALK_TIME
     while current_time < end_of_talk:
         elapsed_seconds = current_time - start_of_talk
         progress = elapsed_seconds / LIGHTNING_TALK_TIME
-        set_and_show_strip(strip, progress)
+        rainbow_progress(strip, progress)
         current_time = time.time()
+        if button.is_pressed:
+            print("Aborted early because of button press")
+            return True
+    return False
+
+
+def red_alert(strip, progress):
+    for led in range(TOTAL_LEDS):
+        strip.setPixel(led, 255, 0, 0)
+    strip.show()
+
+
+def visualize_time_over(strip, button):
+    start_time = current_time = time.time()
+    end_time = start_time + TIME_OVER_TIME
+    while current_time < end_time:
+        elapsed_seconds = current_time - start_time
+        progress = elapsed_seconds / TIME_OVER_TIME
+        current_time = time.time()
+        red_alert(strip, progress)
         if button.is_pressed:
             print("Aborted early because of button press")
             return
@@ -91,9 +111,9 @@ if __name__ == '__main__':
 
         print("Starting")
         # Aborts early if button is pressed
-        visualize(strip, button)
+        aborted_early = visualize_time_elapsing(strip, button)
+        if not aborted_early:
+            print("Time over!")
+            visualize_time_over(strip, button)
 
         print("Finished")
-
-
-        #TODO strip.cleanup()
