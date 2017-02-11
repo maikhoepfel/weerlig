@@ -6,7 +6,7 @@ import gpiozero
 TOTAL_LEDS = 60
 BRIGHTNESS = 3  # 0..31
 LIGHTNING_TALK_TIME = 30 # in seconds
-TIME_OVER_TIME = 10
+TIME_OVER_TIME = 5
 RAINBOW_ROUNDS_PER_MINUTE = 40
 
 SWITCH_GPIO = 4  # BCM numbering, equals board pin 7
@@ -46,7 +46,7 @@ def rainbow_progress(strip, progress):
 
     # Set colors for all LEDs
     for led in range(TOTAL_LEDS):
-        if led > active_leds_cutoff:
+        if led < active_leds_cutoff:
             # Boring, this LEDs isn't "active" yet, stays dimly lit.
             strip.setPixel(led, 1, 1, 1)
         else:
@@ -77,20 +77,18 @@ def visualize_time_elapsing(strip, button):
     return False
 
 
-def red_alert(strip, progress):
+def red_alert(strip):
     for led in range(TOTAL_LEDS):
         strip.setPixel(led, 255, 0, 0)
     strip.show()
 
 
 def visualize_time_over(strip, button):
+    red_alert(strip)
     start_time = current_time = time.time()
     end_time = start_time + TIME_OVER_TIME
     while current_time < end_time:
-        elapsed_seconds = current_time - start_time
-        progress = elapsed_seconds / TIME_OVER_TIME
         current_time = time.time()
-        red_alert(strip, progress)
         if button.is_pressed:
             print("Aborted early because of button press")
             return
