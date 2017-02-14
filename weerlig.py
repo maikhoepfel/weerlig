@@ -5,7 +5,7 @@ import gpiozero
 
 TOTAL_LEDS = 60
 BRIGHTNESS = 3  # 0..31
-LIGHTNING_TALK_TIME = 30 # in seconds
+LIGHTNING_TALK_TIME = 300  # in seconds
 TIME_OVER_TIME = 5
 RAINBOW_ROUNDS_PER_MINUTE = 40
 
@@ -13,17 +13,22 @@ SWITCH_GPIO = 4  # BCM numbering, equals board pin 7
 
 
 def init_strip():
-    # Initialize the class
+    """
+    Initializes the LED strip
+    """
     return apa102.APA102(numLEDs=TOTAL_LEDS, globalBrightness=BRIGHTNESS)
 
 
 def init_buttons():
+    """
+    Initializes the button to start the visualization
+    """
     return gpiozero.Button(SWITCH_GPIO, bounce_time=0.03)
 
 
 def show_idle_strip(strip):
     """
-    The entire strip lights up, but very dimly.
+    Light up the entire strip, but very dimly
     """
     for led in range(TOTAL_LEDS):
         strip.setPixel(led, 1, 1, 1)
@@ -31,6 +36,10 @@ def show_idle_strip(strip):
 
 
 def rainbow_progress(strip, progress):
+    """
+    Render one frame of a rainbow effect progress meter
+    """
+
     # We always pretend we're doing the rainbow effect across the entire strip,
     # but then we only set it for an increasing number of LEDs. LEDs with an index
     # below active_leds_cutoff get the rainbow, the others keep being dimly lit.
@@ -64,6 +73,9 @@ def rainbow_progress(strip, progress):
 
 
 def visualize_time_elapsing(strip, button):
+    """
+    Show a progress meter for LIGHTNING_TALK_TIME seconds
+    """
     start_of_talk = current_time = time.time()
     end_of_talk = start_of_talk + LIGHTNING_TALK_TIME
     while current_time < end_of_talk:
@@ -78,12 +90,18 @@ def visualize_time_elapsing(strip, button):
 
 
 def red_alert(strip):
+    """
+    Turn the entire strip bright red
+    """
     for led in range(TOTAL_LEDS):
         strip.setPixel(led, 255, 0, 0)
     strip.show()
 
 
 def visualize_time_over(strip, button):
+    """
+    Show a bright red strip for TIME_OVER_TIME seconds
+    """
     red_alert(strip)
     start_time = current_time = time.time()
     end_time = start_time + TIME_OVER_TIME
@@ -95,7 +113,7 @@ def visualize_time_over(strip, button):
 
 
 if __name__ == '__main__':
-    # Initialize
+    # Initialize button and LED strip
     strip = init_strip()
     button = init_buttons()
 
