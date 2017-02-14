@@ -26,13 +26,35 @@ def init_buttons():
     return gpiozero.Button(SWITCH_GPIO, bounce_time=0.03)
 
 
+def set_all_leds(strip, red, green, blue):
+    """
+    Set one color for all LEDs
+    red, green, blue range from 0..255
+    """
+    for led in range(TOTAL_LEDS):
+        strip.setPixel(led, red, green, blue)
+    strip.show()
+
+
+def red_alert(strip):
+    """
+    Turn the entire strip bright red
+    """
+    set_all_leds(strip, 255, 0, 0)
+
+
+def black_strip(strip):
+    """
+    Turn the entire strip bright red
+    """
+    set_all_leds(strip, 0, 0, 0)
+
+
 def show_idle_strip(strip):
     """
     Light up the entire strip, but very dimly
     """
-    for led in range(TOTAL_LEDS):
-        strip.setPixel(led, 1, 1, 1)
-    strip.show()
+    set_all_leds(strip, 1, 1, 1)
 
 
 def rainbow_progress(strip, progress):
@@ -89,15 +111,6 @@ def visualize_time_elapsing(strip, button):
     return False
 
 
-def red_alert(strip):
-    """
-    Turn the entire strip bright red
-    """
-    for led in range(TOTAL_LEDS):
-        strip.setPixel(led, 255, 0, 0)
-    strip.show()
-
-
 def visualize_time_over(strip, button):
     """
     Show a bright red strip for TIME_OVER_TIME seconds
@@ -112,11 +125,7 @@ def visualize_time_over(strip, button):
             return
 
 
-if __name__ == '__main__':
-    # Initialize button and LED strip
-    strip = init_strip()
-    button = init_buttons()
-
+def run_visualization(strip, button):
     while True:
         # Power up strip in initial state
         show_idle_strip(strip)
@@ -132,4 +141,16 @@ if __name__ == '__main__':
             print("Time over!")
             visualize_time_over(strip, button)
 
+
+if __name__ == '__main__':
+    # Initialize button and LED strip
+    strip = init_strip()
+    button = init_buttons()
+
+    try:
+        run_visualization(strip, button)
+    except KeyboardInterrupt:
+        black_strip(strip)
+        strip.cleanup()
+        button.close()
         print("Finished")
