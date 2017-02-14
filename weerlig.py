@@ -2,6 +2,8 @@
 import apa102
 import time
 import gpiozero
+import os
+import sys
 
 TOTAL_LEDS = 60
 BRIGHTNESS = 3  # 0..31
@@ -23,7 +25,21 @@ def init_buttons():
     """
     Initializes the button to start the visualization
     """
-    return gpiozero.Button(SWITCH_GPIO, bounce_time=0.03)
+    button = gpiozero.Button(SWITCH_GPIO, bounce_time=0.03, hold_time=5)
+    button.when_held = shutdown
+    return button
+
+
+def shutdown():
+    """
+    Hackish way to shut down Raspberry Pi. Only works when script is run with sudo.
+    But still better than just yanking out the power to the Pi.
+    """
+    print("Attempting to shut down")
+    temp_strip = init_strip()
+    black_strip(temp_strip)
+    os.system("sudo shutdown -h now")
+    sys.exit(0)
 
 
 def set_all_leds(strip, red, green, blue):
@@ -142,6 +158,12 @@ def run_visualization(strip, button):
             visualize_time_over(strip, button)
 
 
+def cleanup(strip, button):
+    black_strip(strip)
+    strip.cleanup()
+    button.close()
+
+
 if __name__ == '__main__':
     # Initialize button and LED strip
     strip = init_strip()
@@ -150,7 +172,5 @@ if __name__ == '__main__':
     try:
         run_visualization(strip, button)
     except KeyboardInterrupt:
-        black_strip(strip)
-        strip.cleanup()
-        button.close()
+        cleanup(strip, button)
         print("Finished")
